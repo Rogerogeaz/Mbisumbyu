@@ -1,0 +1,3490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Mbisu Hotel POS & Inventory</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,Tahoma,sans-serif;
+}
+
+body{
+background:#f5f7fb;
+color:#333;
+}
+
+.header{
+background:white;
+padding:15px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+box-shadow:0 2px 12px rgba(0,0,0,.08);
+position:sticky;
+top:0;
+z-index:999;
+}
+
+.logo{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.logo img{
+width:55px;
+height:55px;
+border-radius:50%;
+object-fit:cover;
+}
+
+.logo h2{
+font-size:20px;
+color:#1b5e20;
+}
+
+.role{
+background:#e8f5e9;
+padding:8px 15px;
+border-radius:30px;
+font-size:14px;
+font-weight:bold;
+color:#2e7d32;
+}
+
+.container{
+padding:15px;
+padding-bottom:90px;
+}
+
+.loginCard{
+max-width:420px;
+margin:60px auto;
+background:white;
+padding:25px;
+border-radius:18px;
+box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+
+.loginCard img{
+display:block;
+margin:auto;
+width:90px;
+height:90px;
+border-radius:50%;
+object-fit:cover;
+}
+
+.loginCard h2{
+text-align:center;
+margin:15px 0;
+color:#2e7d32;
+}
+
+input,select{
+width:100%;
+padding:14px;
+margin-top:12px;
+border:1px solid #ddd;
+border-radius:10px;
+font-size:15px;
+outline:none;
+}
+
+input:focus{
+border-color:#2e7d32;
+}
+
+button{
+border:none;
+padding:14px;
+width:100%;
+margin-top:15px;
+background:#2e7d32;
+color:white;
+font-size:16px;
+border-radius:10px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1b5e20;
+}
+
+.nav{
+display:none;
+overflow:auto;
+gap:10px;
+padding:10px;
+background:white;
+box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+.nav button{
+width:auto;
+margin:0;
+padding:12px 18px;
+border-radius:30px;
+white-space:nowrap;
+background:#43a047;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+margin-top:20px;
+}
+
+.card{
+background:white;
+padding:18px;
+border-radius:18px;
+box-shadow:0 5px 18px rgba(0,0,0,.08);
+}
+
+.card h4{
+color:#777;
+font-size:14px;
+margin-bottom:10px;
+}
+
+.card .value{
+font-size:30px;
+font-weight:bold;
+color:#1b5e20;
+}
+
+.page{
+display:none;
+margin-top:20px;
+}
+
+.section{
+background:white;
+padding:18px;
+border-radius:18px;
+box-shadow:0 5px 18px rgba(0,0,0,.08);
+margin-top:15px;
+}
+
+.section h3{
+margin-bottom:15px;
+color:#2e7d32;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+table th{
+background:#e8f5e9;
+padding:12px;
+text-align:left;
+}
+
+table td{
+padding:12px;
+border-bottom:1px solid #eee;
+}
+
+.statusOpen{
+color:#ef6c00;
+font-weight:bold;
+}
+
+.statusPaid{
+color:#2e7d32;
+font-weight:bold;
+}
+
+.statusPrinted{
+color:#1565c0;
+font-weight:bold;
+}
+
+.footerSpace{
+height:100px;
+}
+.payItem.selected{
+    background:#c8e6c9;
+    border:2px solid #2e7d32;
+}
+@media(max-width:700px){
+
+.logo h2{
+font-size:17px;
+}
+
+.header{
+padding:10px;
+}
+
+.cards{
+grid-template-columns:1fr 1fr;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="loginPage">
+
+<div class="loginCard">
+
+<img src="https://i.ibb.co/RpH9wcL3/images-13.jpg">
+
+<h2>MBISU HOTEL</h2>
+
+<p style="text-align:center;color:#777;">
+POS & Inventory System
+</p>
+
+<select id="username">
+
+<option value="">Select User</option>
+
+<option value="admin">👑 Admin</option>
+
+<option value="cashier">💰 Cashier</option>
+
+</select>
+
+<input
+type="password"
+id="password"
+placeholder="Password">
+<button id="loginBtn">
+
+Login
+
+</button>
+
+</div>
+
+</div>
+
+<div id="mainApp" style="display:none;">
+
+<div class="header">
+
+<div class="logo">
+
+<img src="https://i.ibb.co/RpH9wcL3/images-13.jpg">
+
+<div>
+
+<h2 id="hotelName">
+
+Mbisu Hotel
+
+</h2>
+
+<small id="today"></small>
+
+</div>
+
+</div>
+
+<div class="role" id="currentRole">
+
+Admin
+
+</div>
+
+</div>
+
+<div class="nav" id="nav">
+
+<button onclick="showPage('dashboard')">
+🏠 Dashboard
+</button>
+
+<button onclick="showPage('orders')">
+🍽 Orders
+</button>
+<button onclick="showPage('counter')">
+🥤 Counter
+</button>
+<button id="inventoryBtn"
+onclick="showPage('inventory')">
+
+📦 Inventory
+
+</button>
+
+<button id="issueBtn"
+onclick="showPage('issue')">
+
+📤 Issue Stock
+
+</button>
+<button id="reportsBtn"
+onclick="showPage('reports')">
+
+📊 Reports
+
+</button>
+<button onclick="showPage('expenses')">
+
+💸 Expenses
+
+</button>
+<button onclick="showPage('menu')">
+
+🍽 Menu
+
+</button>
+
+<button id="adminBtn"
+onclick="showPage('admin')">
+
+⚙ Admin
+
+</button>
+
+<button onclick="logout()">
+
+🚪 Logout
+
+</button>
+
+</div>
+
+<div class="container">
+
+<div id="dashboard" class="page">
+
+<div class="cards">
+
+<div class="card">
+
+<h4>Open Orders</h4>
+
+<div class="value"
+id="openOrders">
+
+0
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h4>Today's Sales</h4>
+
+<div class="value"
+id="todaySales">
+
+KSh0
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h4>Counter Sales</h4>
+
+<div class="value"
+id="counterSales">
+
+0
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h4>Low Stock</h4>
+
+<div class="value"
+id="lowStock">
+
+0
+
+</div>
+
+</div>
+
+</div>
+
+<div class="section">
+
+<h3>
+Welcome to Mbisu Hotel
+</h3>
+
+<p>
+This dashboard gives a quick overview of sales,
+inventory and customer orders.
+</p>
+
+</div>
+
+</div>
+
+<!-- ORDERS PAGE -->
+
+<div id="orders" class="page">
+
+<div class="section">
+
+<h3>🍽 Customer Orders</h3>
+
+<button onclick="newOrder()">
+
+➕ New Customer Order
+
+</button>
+<input
+id="searchOrder"
+type="text"
+placeholder="Search Order No or Table"
+onkeyup="searchOrders()">
+<div id="orderArea" style="margin-top:15px;">
+
+<div id="ordersList">
+
+No customer orders.
+
+</div>
+
+<div id="posArea" style="display:none;margin-top:20px;">
+
+<h3>Meals</h3>
+
+<div id="mealButtons">
+
+Loading menu...
+
+</div>
+
+<h3 style="margin-top:20px;">Bill</h3>
+<div id="currentOrderInfo"
+style="margin-bottom:10px;font-weight:bold;">
+</div>
+<div id="billItems">
+
+No items
+
+</div>
+
+<h2 id="billTotal">
+
+Total : KSh 0
+
+</h2>
+
+<button onclick="printCurrentBill()">
+
+💰 Pay Selected
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- COUNTER PAGE -->
+
+<div id="counter" class="page">
+
+<div class="section">
+
+<h3>🥤 Counter Sales</h3>
+
+<p>
+Sell drinks and other items to walk-in customers.
+</p>
+
+<div id="counterButtons">
+
+Loading items...
+
+</div>
+
+<hr style="margin:20px 0;">
+
+<h3>Counter Basket</h3>
+
+<div id="counterCart">
+
+Basket is empty.
+
+</div>
+
+<button onclick="checkoutCounter()">
+
+💳 Checkout & Print Receipt
+
+</button>
+
+<hr style="margin:20px 0;">
+
+<hr style="margin:20px 0;">
+
+<h3>Today's Counter Sales</h3>
+
+<div id="counterList">
+
+No counter sales yet.
+
+</div>
+
+</div>
+
+</div>
+
+<!-- INVENTORY PAGE -->
+
+<div id="inventory" class="page">
+
+<div class="section">
+
+<h3>📦 Inventory</h3>
+<input
+id="searchInventory"
+type="text"
+placeholder="Search inventory..."
+onkeyup="searchInventory()">
+<button onclick="addInventoryItem()">
+➕ Add Item
+</button>
+
+<button onclick="addStock()">
+📥 Stock In
+</button>
+
+<button onclick="stockOut()">
+📤 Stock Out
+</button>
+
+<button onclick="deleteItem()">
+🗑 Delete Item
+</button>
+
+<table>
+
+<tr>
+
+<th>Item</th>
+
+<th>Qty</th>
+
+<th>Status</th>
+
+<th>Actions</th>
+
+</tr>
+
+<tbody id="inventoryTable">
+
+<tr>
+
+<td colspan="3">
+
+No Inventory
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+<!-- ISSUE STOCK PAGE -->
+
+<div id="issue" class="page">
+
+<div class="section">
+<h4 id="issueSummary">
+Total Issued Today: 0
+</h4>
+<h3>📤 Issue Stock</h3>
+
+<button onclick="issueStock()">
+📤 Issue Item
+</button>
+
+<table>
+
+<tr>
+<th>Date</th>
+<th>Item</th>
+<th>Qty</th>
+<th>Destination</th>
+<th>Purpose</th>
+</tr>
+
+<tbody id="issueTable">
+
+<tr>
+<td colspan="3">No issued stock</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+<!-- EXPENSES PAGE -->
+
+<div id="expenses" class="page">
+
+<div class="section">
+
+<h3>💸 Expenses</h3>
+
+<button onclick="addExpense()">
+
+➕ Add Expense
+
+</button>
+
+<h4 id="expenseSummary" style="margin-top:20px;">
+
+Total Expenses Today: KSh 0
+
+</h4>
+
+<table>
+
+<tr>
+
+<th>Date</th>
+
+<th>Expense</th>
+
+<th>Amount</th>
+
+<th>Action</th>
+
+</tr>
+
+<tbody id="expenseTable">
+
+<tr>
+
+<td colspan="4">
+
+No expenses recorded.
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+<!-- REPORTS PAGE -->
+
+<div id="reports" class="page">
+
+<div class="section">
+
+<h3>📊 Reports</h3>
+
+<p>Restaurant Sales</p>
+<p id="restaurantSales">KSh 0</p>
+
+<p>Counter Sales</p>
+<p id="reportCounterSales">KSh 0</p>
+<hr style="margin:15px 0;">
+
+<p>💵 Cash Sales</p>
+<p id="cashSales">KSh 0</p>
+
+<p>📱 M-Pesa Sales</p>
+<p id="mpesaSales">KSh 0</p>
+
+<p>💳 Card Sales</p>
+<p id="cardSales">KSh 0</p>
+<p><b>Total Sales</b></p>
+<p id="dailySales"><b>KSh 0</b></p>
+
+<hr style="margin:15px 0;">
+
+<p>Expenses</p>
+<p id="reportExpenses">KSh 0</p>
+
+<p><b>Net Cash</b></p>
+<p id="netCash"><b>KSh 0</b></p>
+
+<hr style="margin:15px 0;">
+
+<p>Receipts Today</p>
+<p id="ordersToday">0</p>
+
+</div>
+
+</div>
+
+<!-- MENU PAGE -->
+
+<div id="menu" class="page">
+
+<div class="section">
+
+<h3>🍽 Restaurant Menu</h3>
+
+<button onclick="addMenuItem()">
+
+➕ Add Menu Item
+
+</button>
+
+<table>
+
+<tr>
+
+<th>Meal</th>
+
+<th>Category</th>
+
+<th>Price</th>
+
+<th>Actions</th>
+
+</tr>
+
+<tbody id="menuTable">
+
+<tr>
+
+<td colspan="3">
+
+No menu items.
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- ADMIN PAGE -->
+
+<div id="admin" class="page">
+
+<div class="section">
+
+<h3>⚙ Admin Panel</h3>
+
+<button>
+
+Restaurant Settings
+
+</button>
+
+<button>
+
+Manage Products
+
+</button>
+
+<button>
+
+Manage Users
+
+</button>
+
+<button>
+
+Receipt Settings
+
+</button>
+
+</div>
+
+</div>
+<div id="receiptArea" style="display:none;"></div>
+<div id="paymentModal" style="
+display:none;
+position:fixed;
+left:0;
+top:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.45);
+z-index:9999;
+">
+
+<div style="
+background:white;
+max-width:420px;
+margin:60px auto;
+padding:20px;
+border-radius:15px;
+">
+
+<h2>Receive Payment</h2>
+
+<p><b>Amount Due</b></p>
+
+<h2 id="payAmountDue">KSh 0</h2>
+
+<select id="payMethod">
+
+<option>Cash</option>
+
+<option>M-Pesa</option>
+
+<option>Card</option>
+
+</select>
+
+<div id="cashSection">
+
+<input
+id="cashReceived"
+type="number"
+placeholder="Amount Received">
+
+<p id="cashChange"></p>
+
+<p id="cashOwed" style="color:red;"></p>
+
+</div>
+
+<div
+id="mpesaSection"
+style="display:none;">
+
+<input
+id="mpesaCode"
+placeholder="M-Pesa Transaction Code">
+
+</div>
+
+<div
+id="cardSection"
+style="display:none;">
+
+<input
+id="cardReference"
+placeholder="Card Reference">
+
+</div>
+
+<button id="confirmPaymentBtn">
+Confirm Payment
+</button>
+
+<button
+onclick="closePaymentWindow()"
+style="background:#777;">
+
+Cancel
+
+</button>
+
+</div>
+
+</div>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+addDoc,
+getDocs,
+updateDoc,
+deleteDoc,
+doc,
+setDoc,
+onSnapshot,
+serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyBaFaCyxqng9u6EvzlrjERzmCp4J-IcF9g",
+  authDomain: "mbisu-ff51c.firebaseapp.com",
+  projectId: "mbisu-ff51c",
+  storageBucket: "mbisu-ff51c.firebasestorage.app",
+  messagingSenderId: "1093791565998",
+  appId: "1:1093791565998:web:fa1b093aae596d73a4053f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let currentRole="";
+
+document.getElementById("today").innerHTML=
+new Date().toDateString();
+
+document.getElementById("loginBtn").onclick = async function(){
+
+let user=document.getElementById("username").value.trim();
+
+let pass=document.getElementById("password").value.trim();
+
+if(user==="admin" && pass==="1234"){
+
+document.getElementById("loginPage").style.display="none";
+document.getElementById("mainApp").style.display="block";
+document.getElementById("nav").style.display="flex";
+document.getElementById("dashboard").style.display="block";
+document.getElementById("currentRole").innerHTML="Admin";
+await drawOrders();
+await drawInventory();
+await drawMenu();
+await drawCounter();
+}
+
+else if(user==="cashier" && pass==="1234"){
+
+document.getElementById("loginPage").style.display="none";
+document.getElementById("mainApp").style.display="block";
+document.getElementById("nav").style.display="flex";
+document.getElementById("dashboard").style.display="block";
+document.getElementById("currentRole").innerHTML="Cashier";
+await drawOrders();
+await drawInventory();
+await drawMenu();
+await drawCounter();
+document.getElementById("inventoryBtn").style.display="none";
+document.getElementById("reportsBtn").style.display="none";
+document.getElementById("adminBtn").style.display="none";
+
+}
+
+else{
+
+alert("Wrong username or password");
+
+}
+
+};
+
+function showPage(page){
+
+document.querySelectorAll(".page").forEach(function(p){
+
+p.style.display="none";
+
+});
+
+let x=document.getElementById(page);
+
+if(x){
+
+x.style.display="block";
+
+}
+
+if(page==="orders"){
+
+
+
+}
+
+}
+
+function logout(){
+
+location.reload();
+
+}
+
+let orders = [];
+
+let counterSales = [];
+
+let counterCart = [];
+
+let inventory = [];
+
+let issuedStock = [];
+
+let menuItems = [];
+
+let expenses = [];
+
+let payments = [];
+
+function newOrder(){
+
+let html=`
+
+<div class="section" id="orderForm">
+
+<h3>New Customer Order</h3>
+
+<input
+id="tableNo"
+type="number"
+placeholder="Table Number">
+
+<button onclick="saveOrder()">
+
+Save Order
+
+</button>
+
+</div>
+
+`;
+
+document.getElementById("ordersList").innerHTML=
+html;
+
+}
+async function saveOrder(){
+
+let table=document.getElementById("tableNo").value;
+let existingOrder = orders.find(function(o){
+    return o.table == table && o.status == "Open";
+});
+
+if(existingOrder){
+    addMeal(existingOrder.orderNo);
+    return;
+}
+if(table==""){
+
+alert("Enter Table Number");
+
+return;
+
+}
+
+let order={
+
+orderNo:"ORD"+Date.now(),
+
+table:table,
+
+status:"Open",
+
+total:0,
+
+items:[],
+
+createdAt:serverTimestamp()
+
+};
+
+await setDoc(
+doc(db,"orders",order.orderNo),
+order
+);
+
+await drawOrders();
+
+}
+async function drawOrders(){
+
+    const snapshot = await getDocs(collection(db,"orders"));
+
+    orders = [];
+
+    let html = "";
+
+    snapshot.forEach((docSnap)=>{
+
+        const o = docSnap.data();
+
+orders.push(o);
+
+if(o.status === "Completed" || o.status === "Paid"){
+    return;
+}
+
+        let items = "";
+
+        if(o.items && o.items.length>0){
+
+            o.items.forEach(function(item){
+
+    items += "• " + item.name +
+             " x" + (item.qty || 1) +
+             "<br>";
+
+});
+
+        }else{
+
+            items = "No items";
+
+        }
+
+        html += `
+<div class="section">
+
+<h2>🍽 Table ${o.table}</h2>
+
+<button onclick="addMeal('${o.orderNo}')">
+Open Table
+</button>
+
+</div>
+`;
+
+    });
+
+    if(html===""){
+        html="No customer orders.";
+    }
+
+    document.getElementById("ordersList").innerHTML = html;
+
+    let openCount = orders.filter(function(o){
+        return o.status==="Open";
+    }).length;
+
+    document.getElementById("openOrders").innerHTML = openCount;
+
+}
+
+async function editOrder (orderNo){
+
+let order = orders.find(function(o){
+
+return o.orderNo == orderNo;
+
+});
+
+if(!order){
+return;
+}
+
+currentOrder = order;
+
+document.getElementById("posArea").style.display = "block";
+
+document.getElementById("currentOrderInfo").innerHTML =
+
+"<b>Order:</b> " + order.orderNo +
+
+"<br><b>Table:</b> " + order.table;
+
+refreshBill();
+
+}
+
+async function deleteOrder(orderNo){
+
+let order = orders.find(function(o){
+
+return o.orderNo == orderNo;
+
+});
+
+if(!order){
+return;
+}
+
+if(order.status=="Paid"){
+
+alert("Paid orders cannot be deleted.");
+
+return;
+
+}
+
+let ok = confirm("Delete Order " + order.orderNo + " ?");
+
+if(!ok){
+return;
+}
+
+await deleteDoc(doc(db,"orders",orderNo));
+
+if(currentOrder && currentOrder.orderNo==orderNo){
+
+currentOrder = null;
+
+document.getElementById("posArea").style.display = "none";
+
+}
+
+await drawOrders();
+
+alert("Order deleted successfully.");
+
+}
+
+
+
+
+let currentOrder = null;
+
+function addMeal(orderNo){
+
+currentOrder=orders.find(function(o){
+
+return o.orderNo==orderNo;
+
+});
+
+document.getElementById("posArea").style.display="block";
+
+document.getElementById("currentOrderInfo").innerHTML=
+
+"<b>Order:</b> "+currentOrder.orderNo+
+
+"<br><b>Table:</b> "+currentOrder.table;
+
+refreshBill();
+
+}
+
+async function quickAdd(name,price){
+
+if(currentOrder==null){
+
+alert("Open an order first.");
+
+return;
+
+}
+
+let existing = currentOrder.items.find(function(item){
+
+    return item.name === name;
+
+});
+
+if(existing){
+
+    existing.qty = (existing.qty || 1) + 1;
+
+}else{
+
+    currentOrder.items.push({
+
+        name: name,
+        price: price,
+        qty: 1
+
+    });
+
+}
+
+currentOrder.total = 0;
+
+currentOrder.items.forEach(function(item){
+
+    currentOrder.total += item.price * (item.qty || 1);
+
+});
+
+await updateDoc(
+doc(db,"orders",currentOrder.orderNo),
+{
+items: currentOrder.items,
+total: currentOrder.total
+}
+);
+
+refreshBill();
+
+await drawOrders();
+
+}
+
+function refreshBill(){
+
+    if(currentOrder == null){
+        return;
+    }
+
+    let html = "";
+
+    html += `
+    <div style="
+    background:#2e7d32;
+    color:white;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:10px;
+    font-size:20px;
+    font-weight:bold;
+    text-align:center;">
+    TABLE ${currentOrder.table}
+    </div>
+    `;
+
+    currentOrder.items.forEach(function(item,index){
+
+        let total = item.price * (item.qty || 1);
+
+        html += `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+
+            <div
+            class="payItem"
+            data-index="${index}"
+            onclick="toggleMeal(this)"
+            style="
+            flex:1;
+            padding:12px;
+            border:1px solid #ddd;
+            border-radius:8px;
+            cursor:pointer;
+            margin-right:10px;">
+
+                <b style="font-size:18px;">
+                ${item.name}
+                </b>
+
+                <br>
+
+                Qty: ${item.qty || 1}
+
+                <br>
+
+                <span style="color:#2e7d32;font-weight:bold;">
+                KSh ${total}
+                </span>
+
+            </div>
+
+            <button
+            onclick="removeMeal(${index})"
+            style="
+            background:red;
+            color:white;
+            border:none;
+            border-radius:6px;
+            padding:8px 12px;
+            width:auto;">
+            ❌
+            </button>
+
+        </div>
+        `;
+
+    });
+
+    if(currentOrder.items.length===0){
+        html = "No items";
+    }
+
+    document.getElementById("billItems").innerHTML = html;
+
+    updateSelectedTotal();
+
+}
+
+function updateSelectedTotal(){
+
+    let total = 0;
+
+    document.querySelectorAll(".payItem.selected").forEach(function(card){
+
+        let index = Number(card.dataset.index);
+
+        let item = currentOrder.items[index];
+
+        total += item.price * (item.qty || 1);
+
+    });
+
+    document.getElementById("billTotal").innerHTML =
+    "Selected : KSh " + total;
+
+}
+function printCurrentBill(){
+
+    if(currentOrder == null){
+        return;
+    }
+
+    printBill(currentOrder.orderNo);
+
+}
+function toggleMeal(card){
+
+    card.classList.toggle("selected");
+
+    updateSelectedTotal();
+
+}
+console.log("toggleMeal loaded");
+async function removeMeal(index){
+
+    if(currentOrder==null){
+        return;
+    }
+let item = currentOrder.items[index];
+
+let ok = confirm(
+"Remove " + item.name + " from this order?"
+);
+
+if(!ok){
+return;
+}
+
+currentOrder.total = 0;
+
+currentOrder.items.splice(index,1);
+
+currentOrder.items.forEach(function(item){
+
+    currentOrder.total += item.price * (item.qty || 1);
+
+});
+
+await updateDoc(
+doc(db,"orders",currentOrder.orderNo),
+{
+items: currentOrder.items,
+total: currentOrder.total
+}
+);
+
+refreshBill();
+
+await drawOrders();
+
+}
+
+async function printBill(orderNo){
+
+let order = orders.find(function(o){
+    return o.orderNo==orderNo;
+});
+// Get checked meals
+let checked = document.querySelectorAll(".payItem.selected");
+
+if(checked.length==0){
+    alert("Please select the meals being paid.");
+    return;
+}
+
+let paidItems = [];
+let paidIndexes = [];
+let paidTotal = 0;
+
+checked.forEach(function(card){
+
+    let index = Number(card.dataset.index);
+
+    let item = order.items[index];
+    paidItems.push(item);
+
+    paidIndexes.push(index);
+
+    paidTotal += item.price * (item.qty || 1);
+
+});
+let now = new Date();
+
+let receiptNo = "RCP"+Date.now();
+
+let cashier =
+document.getElementById("currentRole").innerHTML;
+return openPaymentWindow(paidTotal, async function(payment){
+
+let paymentMethod = payment.paymentMethod;
+
+let amountPaid = payment.amountPaid;
+
+let mpesaCode = payment.mpesaCode;
+
+let cardReference = payment.cardReference;
+
+if(paymentMethod==="Cash"){
+
+    if(isNaN(amountPaid)){
+        return;
+    }
+
+    if(amountPaid < paidTotal){
+        alert("Customer has not paid enough.");
+        return;
+    }
+
+}else if(paymentMethod==="M-Pesa"){
+
+    amountPaid = paidTotal;
+
+    if(!mpesaCode){
+        alert("Enter M-Pesa Transaction Code.");
+        return;
+    }
+
+}else if(paymentMethod==="Card"){
+
+    amountPaid = paidTotal;
+
+    if(!cardReference){
+        alert("Enter Card Reference.");
+        return;
+    }
+
+}
+
+let balance = amountPaid - paidTotal;
+let itemsHTML="";
+
+paidItems.forEach(function(i){
+
+let qty = i.qty || 1;
+let amount = qty * i.price;
+
+itemsHTML += `
+<tr>
+<td style="width:20px;">${qty}</td>
+<td>${i.name}</td>
+<td style="text-align:right;">${amount}</td>
+</tr>
+`;
+
+});
+
+let win = window.open("","","width=320,height=900");
+
+win.document.write(`
+<html>
+
+<head>
+
+<title>Receipt</title>
+
+<style>
+@media print{
+
+@page{
+size:80mm auto;
+margin:2mm;
+}
+
+}
+
+body{
+font-family:monospace;
+width:76mm;
+margin:0 auto;
+padding:2mm;
+font-size:13px;
+color:#000;
+background:#fff;
+}
+
+h1{
+font-size:24px;
+margin:0;
+text-align:center;
+}
+
+h2{
+font-size:20px;
+margin:6px 0;
+text-align:center;
+}
+
+p{
+margin:3px 0;
+text-align:center;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+td{
+padding:3px 0;
+}
+
+hr{
+border:none;
+border-top:1px dashed black;
+margin:8px 0;
+}
+
+.total{
+font-size:34px;
+font-weight:bold;
+text-align:right;
+}
+
+.right{
+text-align:right;
+}
+
+.center{
+text-align:center;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>MBISU HOTEL</h1>
+
+<p>Quality Meals, Great Service!</p>
+
+<hr>
+
+<h2>RECEIPT</h2>
+
+<p><b>Receipt No:</b> ${receiptNo}</p>
+
+<p><b>Order No:</b> ${order.orderNo}</p>
+
+<p><b>Table:</b> ${order.table}</p>
+
+<p><b>Cashier:</b> ${cashier}</p>
+
+<p><b>Date:</b> ${now.toLocaleDateString()}</p>
+
+<p><b>Time:</b> ${now.toLocaleTimeString()}</p>
+
+<hr>
+
+<table>
+
+<tr>
+
+<td><b>QTY</b></td>
+
+<td><b>ITEM</b></td>
+
+<td style="text-align:right;"><b>AMOUNT</b></td>
+
+</tr>
+
+${itemsHTML}
+
+</table>
+
+<hr>
+
+<table>
+
+<tr>
+
+<td><b>TOTAL</b></td>
+
+<td class="right total">
+
+KSh ${paidTotal}
+
+</td>
+
+</tr>
+
+</table>
+
+<hr>
+
+<p><b>Payment:</b> ${paymentMethod}</p>
+
+${paymentMethod==="M-Pesa"
+? `<p><b>M-Pesa Code:</b> ${mpesaCode}</p>`
+: ""}
+
+${paymentMethod==="Card"
+? `<p><b>Card Ref:</b> ${cardReference}</p>`
+: ""}
+
+<p><b>Paid:</b> KSh ${amountPaid}</p>
+
+<p><b>Balance:</b> KSh ${balance}</p>
+
+<hr>
+
+<h2>Thank You!</h2>
+
+<p>Karibu Tena 😊</p>
+
+<p>Powered by Mbisu Hotel POS</p>
+
+<p>Tel: 0700 000 000</p>
+
+</body>
+
+</html>
+`);
+
+win.document.close();
+
+win.print();
+
+// Remove the paid meals
+order.items = order.items.filter(function(item,index){
+
+    return !paidIndexes.includes(index);
+
+});
+
+// Recalculate remaining total
+order.total = 0;
+
+order.items.forEach(function(item){
+
+    order.total += item.price * (item.qty || 1);
+
+});
+
+// Close order automatically if empty
+if(order.items.length === 0){
+
+    order.status = "Completed";
+
+}else{
+
+    order.status = "Open";
+
+}
+await addDoc(collection(db,"payments"),{
+
+    receiptNo: receiptNo,
+
+    orderNo: order.orderNo,
+
+    table: order.table,
+
+    cashier: cashier,
+
+    paymentMethod: paymentMethod,
+
+    amountPaid: amountPaid,
+
+    totalPaid: paidTotal,
+
+    balance: balance,
+
+    mpesaCode: mpesaCode || "",
+
+    cardReference: cardReference || "",
+
+    items: paidItems,
+
+    createdAt: serverTimestamp(),
+
+    status: "Completed"
+
+});
+await updateDoc(
+doc(db,"orders",order.orderNo),
+{
+items: order.items,
+total: order.total,
+status: order.status,
+paidAmount: paidTotal
+}
+);
+
+// Refresh current screen
+currentOrder = order;
+refreshBill();
+
+if(order.status === "Completed"){
+
+    currentOrder = null;
+
+    document.getElementById("posArea").style.display = "none";
+
+}
+
+document.getElementById("todaySales").innerHTML =
+"KSh " + (
+Number(
+document.getElementById("todaySales")
+.innerHTML.replace("KSh ","")
+)
++ paidTotal
+);
+
+await drawOrders();
+
+setTimeout(function(){
+
+win.close();
+
+},500);
+
+});
+}
+
+function newCounterSale(){
+
+if(inventory.length==0){
+alert("No inventory items.");
+return;
+}
+
+let item = prompt(
+"Enter item name\n\nAvailable:\n\n" +
+inventory.map(i => i.name).join("\n")
+);
+
+if(!item) return;
+
+let found = inventory.find(i =>
+i.name.toLowerCase() == item.toLowerCase()
+);
+
+if(!found){
+alert("Item not found.");
+return;
+}
+
+let qty = Number(prompt("Quantity"));
+
+if(isNaN(qty) || qty<=0){
+return;
+}
+
+if(found.qty < qty){
+alert("Not enough stock.");
+return;
+}
+
+let price = Number(prompt("Selling Price"));
+
+if(isNaN(price)){
+return;
+}
+
+found.qty -= qty;
+
+updateDoc(doc(db,"inventory",found.id),{
+qty: found.qty
+});
+
+counterSales.push({
+item: found.name,
+qty: qty,
+price: price
+});
+
+document.getElementById("counterSales").innerHTML = counterSales.length;
+
+drawInventory();
+
+alert("Sale recorded successfully.");
+
+}
+
+async function drawInventory(){
+
+let html = "";
+let lowCount = 0;
+
+const snapshot = await getDocs(collection(db,"inventory"));
+
+inventory = [];
+
+snapshot.forEach((docSnap)=>{
+
+let item = {
+id: docSnap.id,
+...docSnap.data()
+};
+
+inventory.push(item);
+
+let status = "OK";
+
+if(item.qty <= item.low){
+status = "<span style='color:red;font-weight:bold;'>LOW STOCK</span>";
+lowCount++;
+}
+
+html += `
+<tr>
+<td>${item.name} ${item.size}</td>
+<td>${item.qty} ${item.unit}</td>
+<td>${status}</td>
+<td>
+
+<button
+onclick="editInventoryItem('${item.id}')"
+style="width:auto;padding:6px 10px;margin:2px;">
+✏ Edit
+</button>
+
+<button
+onclick="deleteInventoryItem('${item.id}')"
+style="width:auto;padding:6px 10px;margin:2px;background:red;">
+🗑 Delete
+</button>
+
+</td>
+</tr>
+`;
+
+});
+
+document.getElementById("inventoryTable").innerHTML = html;
+document.getElementById("lowStock").innerHTML = lowCount;
+
+// Refresh counter every time inventory changes
+drawCounter();
+
+}
+
+async function addStock(){
+
+if(inventory.length==0){
+alert("No inventory items.");
+return;
+}
+
+let list="";
+
+inventory.forEach(function(item,index){
+
+list += (index+1)+". "+item.name+" "+item.size+"\n";
+
+});
+
+let choice = Number(prompt(
+"Select item number:\n\n"+list
+));
+
+if(isNaN(choice) || choice<1 || choice>inventory.length){
+return;
+}
+
+let found = inventory[choice-1];
+
+let qty = Number(prompt(
+"Quantity to add"
+));
+
+if(isNaN(qty) || qty<=0){
+return;
+}
+
+await updateDoc(doc(db,"inventory",found.id),{
+
+qty: found.qty + qty
+
+});
+
+await drawInventory();
+drawCounter();
+
+alert("Stock updated successfully.");
+
+}
+async function completeOrder(){
+
+if(currentOrder==null){
+
+alert("No order selected.");
+
+return;
+
+}
+
+await updateDoc(
+doc(db,"orders",currentOrder.orderNo),
+{
+status:"Completed"
+}
+);
+
+currentOrder = null;
+
+document.getElementById("posArea").style.display="none";
+
+await drawOrders();
+
+alert("Order completed successfully.");
+
+}
+async function addInventoryItem(){
+
+let name = prompt("Item Name");
+if(!name) return;
+
+let size = prompt("Size / Measurement (e.g. 300ml, 500ml, 1L, 2L, 5L, 250g)");
+if(!size) return;
+
+let unit = prompt("Unit (Bottle, Can, Packet, Piece, Kg, Litre, Crate)");
+if(!unit) return;
+let category = prompt(
+"Category\n\n1. Drink\n2. Food\n3. Kitchen",
+"Drink"
+);
+
+if(!category) return;
+
+category = category.trim();
+let qty = Number(prompt("Opening Quantity"));
+if(isNaN(qty)) return;
+
+let sellingPrice = Number(prompt("Selling Price"));
+if(isNaN(sellingPrice)) return;
+
+let low = Number(prompt("Low Stock Level"));
+if(isNaN(low)) low = 5;
+
+await addDoc(collection(db,"inventory"),{
+name,
+size,
+unit,
+category,
+qty,
+sellingPrice,
+low
+});
+
+drawInventory();
+drawCounter();
+
+}
+
+async function stockOut(){
+
+if(inventory.length==0){
+alert("No inventory items.");
+return;
+}
+
+let list="";
+
+inventory.forEach(function(item,index){
+
+list += (index+1)+". "+item.name+" "+item.size+"\n";
+
+});
+
+let choice = Number(prompt(
+"Select item number:\n\n"+list
+));
+
+if(isNaN(choice) || choice<1 || choice>inventory.length){
+return;
+}
+
+let found = inventory[choice-1];
+
+let qty = Number(prompt("Quantity Used"));
+
+if(isNaN(qty) || qty<=0){
+return;
+}
+
+if(found.qty < qty){
+alert("Not enough stock.");
+return;
+}
+
+await updateDoc(doc(db,"inventory",found.id),{
+
+qty: found.qty - qty
+
+});
+
+await drawInventory();
+drawCounter();
+
+alert("Stock updated successfully.");
+
+}
+
+async function deleteItem(){
+
+if(inventory.length==0){
+alert("No inventory items.");
+return;
+}
+
+let list="";
+
+inventory.forEach(function(item,index){
+
+list += (index+1)+". "+item.name+" "+item.size+"\n";
+
+});
+
+let choice = Number(prompt(
+"Select item number to delete:\n\n"+list
+));
+
+if(isNaN(choice) || choice<1 || choice>inventory.length){
+return;
+}
+
+let found = inventory[choice-1];
+
+let confirmDelete = confirm(
+"Delete "+found.name+" "+found.size+" ?"
+);
+
+if(!confirmDelete){
+return;
+}
+
+await deleteDoc(doc(db,"inventory",found.id));
+
+await drawInventory();
+drawCounter();
+
+alert("Item deleted successfully.");
+
+}
+async function editInventoryItem(id){
+
+let item = inventory.find(function(i){
+    return i.id === id;
+});
+
+if(!item){
+    alert("Item not found.");
+    return;
+}
+
+let name = prompt("Item Name", item.name);
+if(!name) return;
+
+let size = prompt("Size", item.size);
+if(!size) return;
+
+let unit = prompt("Unit", item.unit);
+if(!unit) return;
+
+let category = prompt("Category", item.category);
+if(!category) return;
+
+let price = Number(prompt("Selling Price", item.sellingPrice));
+
+if(isNaN(price)) return;
+
+let low = Number(prompt("Low Stock Level", item.low));
+
+if(isNaN(low)) low = item.low;
+
+await updateDoc(
+    doc(db,"inventory",id),
+    {
+        name:name,
+        size:size,
+        unit:unit,
+        category:category,
+        sellingPrice:price,
+        low:low
+    }
+);
+
+alert("Inventory updated successfully.");
+
+}
+async function deleteInventoryItem(id){
+
+let item = inventory.find(function(i){
+    return i.id === id;
+});
+
+if(!item){
+    alert("Item not found.");
+    return;
+}
+
+let ok = confirm(
+"Delete " + item.name + " " + item.size + " ?"
+);
+
+if(!ok){
+    return;
+}
+
+await deleteDoc(
+    doc(db,"inventory",id)
+);
+
+alert("Inventory item deleted successfully.");
+
+}
+async function addExpense(){
+
+let name = prompt("Expense Name");
+
+if(!name) return;
+
+let amount = Number(prompt("Amount"));
+
+if(isNaN(amount) || amount <= 0){
+    return;
+}
+
+await addDoc(
+    collection(db,"expenses"),
+    {
+        name:name,
+        amount:amount,
+        date:new Date().toLocaleString(),
+        createdAt:serverTimestamp()
+    }
+);
+
+alert("Expense added successfully.");
+
+}
+async function issueStock(){
+
+if(inventory.length==0){
+alert("No inventory items.");
+return;
+}
+
+let list="";
+
+inventory.forEach(function(item,index){
+
+list += (index+1)+". "+item.name+" "+item.size+"\n";
+
+});
+
+let choice = Number(prompt(
+"Select item number:\n\n"+list
+));
+
+if(isNaN(choice) || choice<1 || choice>inventory.length){
+return;
+}
+
+let found = inventory[choice-1];
+
+let qty = Number(prompt("Quantity to Issue"));
+
+if(isNaN(qty) || qty<=0){
+return;
+}
+
+let destination = prompt(
+"Issue To\n\nKitchen\nCounter",
+"Kitchen"
+);
+
+if(!destination){
+return;
+}
+let purpose = prompt(
+"Purpose\n\nBreakfast\nLunch\nDinner\nBar\nOther",
+"Kitchen Use"
+);
+
+if(!purpose){
+    purpose = "";
+}
+if(found.qty < qty){
+alert("Not enough stock.");
+return;
+}
+
+await updateDoc(doc(db,"inventory",found.id),{
+
+qty: found.qty - qty
+
+});
+
+await addDoc(collection(db,"issuedStock"),{
+
+item: found.name + " " + found.size,
+qty: qty,
+destination: destination,
+purpose: purpose,
+date: new Date().toLocaleString(),
+createdAt: serverTimestamp()
+
+});
+
+
+
+await drawInventory();
+drawCounter();
+
+alert("Stock issued successfully.");
+
+}
+
+async function sellCounterItem(id){
+
+let item = inventory.find(i => i.id == id);
+
+if(!item){
+    alert("Item not found.");
+    return;
+}
+
+let found = counterCart.find(c => c.id == item.id);
+
+if(found){
+
+    found.qty++;
+
+}else{
+
+    counterCart.push({
+        id:item.id,
+        name:item.name + " " + item.size,
+        price:item.sellingPrice,
+        qty:1
+    });
+
+}
+
+drawCounterCart();
+
+}
+function drawCounterCart(){
+
+let html = "";
+
+let total = 0;
+
+counterCart.forEach(function(item){
+
+    let amount = item.qty * item.price;
+
+    total += amount;
+
+    html += `
+    <div class="section">
+
+    <b>${item.name}</b><br>
+
+    Qty: ${item.qty}
+
+    <br>
+
+    KSh ${amount}
+
+    </div>
+    `;
+
+});
+
+if(counterCart.length==0){
+
+    html = "No items selected.";
+
+}else{
+
+    html += `<hr><h2>Total : KSh ${total}</h2>`;
+
+}
+
+document.getElementById("counterCart").innerHTML = html;
+
+}
+async function checkoutCounter(){
+
+    if(counterCart.length===0){
+        alert("Basket is empty.");
+        return;
+    }
+
+    let total = 0;
+
+    counterCart.forEach(function(item){
+        total += item.price * item.qty;
+    });
+
+    return openPaymentWindow(total, async function(payment){
+
+let paymentMethod = payment.paymentMethod;
+
+let amountPaid = payment.amountPaid;
+
+let mpesaCode = payment.mpesaCode;
+
+let cardReference = payment.cardReference;
+
+if(paymentMethod==="Cash"){
+
+    if(isNaN(amountPaid)){
+        return;
+    }
+
+    if(amountPaid < total){
+        alert("Customer has not paid enough.");
+        return;
+    }
+
+}else if(paymentMethod==="M-Pesa"){
+
+    amountPaid = total;
+
+    if(!mpesaCode){
+        alert("Enter M-Pesa Transaction Code.");
+        return;
+    }
+
+}else if(paymentMethod==="Card"){
+
+    amountPaid = total;
+
+    if(!cardReference){
+        alert("Enter Card Reference.");
+        return;
+    }
+
+}
+
+let balance = amountPaid - total;
+
+    // Verify stock
+    for(const sale of counterCart){
+
+        let stock = inventory.find(i=>i.id===sale.id);
+
+        if(!stock){
+            alert("Item not found.");
+            return;
+        }
+
+        if(stock.qty < sale.qty){
+            alert(stock.name + " is out of stock.");
+            return;
+        }
+
+    }
+
+    // Deduct stock
+    for(const sale of counterCart){
+
+        let stock = inventory.find(i=>i.id===sale.id);
+
+        await updateDoc(
+            doc(db,"inventory",stock.id),
+            {
+                qty: stock.qty - sale.qty
+            }
+        );
+
+    }
+
+    // Save sale
+    await addDoc(
+        collection(db,"counterSales"),
+        {
+            items:[...counterCart],
+            total:total,
+            paymentMethod:paymentMethod,
+            amountPaid:amountPaid,
+            balance:balance,
+            createdAt:serverTimestamp()
+        }
+    );
+printCounterReceipt(
+    [...counterCart],
+    total,
+    paymentMethod,
+    amountPaid,
+    balance
+);
+    alert(
+        "Payment Successful\n\n" +
+        "Total : KSh " + total +
+        "\nPaid : KSh " + amountPaid +
+        "\nChange : KSh " + balance
+    );
+
+    counterCart = [];
+
+    drawCounterCart();
+
+    await drawInventory();
+
+    await drawCounter();
+
+});
+
+}
+
+function printCounterReceipt(items, total, paymentMethod, amountPaid, balance){
+
+let now = new Date();
+
+let receiptNo = "CTR" + Date.now();
+
+let cashier = document.getElementById("currentRole").innerHTML;
+
+let win = window.open("","","width=320,height=700");
+
+win.document.write(`
+<html>
+<head>
+<title>Counter Receipt</title>
+<style>
+
+body{
+font-family:monospace;
+width:76mm;
+margin:auto;
+padding:2mm;
+font-size:13px;
+}
+
+h2,p{
+text-align:center;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+td{
+padding:4px 0;
+}
+
+hr{
+border:none;
+border-top:1px dashed black;
+margin:8px 0;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>MBISU HOTEL</h2>
+
+<p>COUNTER RECEIPT</p>
+
+<hr>
+
+<p>Receipt No: ${receiptNo}</p>
+
+<p>${now.toLocaleString()}</p>
+
+<p>Cashier: ${cashier}</p>
+
+<hr>
+
+<table>
+
+${items.map(i => `
+<tr>
+<td>${i.name}</td>
+<td>${i.qty}</td>
+<td style="text-align:right;">KSh ${i.price * i.qty}</td>
+</tr>
+`).join("")}
+
+</table>
+
+<hr>
+
+<h2>Total: KSh ${total}</h2>
+<p>Payment: ${paymentMethod}</p>
+
+<p>Paid: KSh ${amountPaid}</p>
+
+<p>Change: KSh ${balance}</p>
+
+<hr>
+<p>Thank You!</p>
+
+</body>
+
+</html>
+`);
+
+win.document.close();
+
+setTimeout(function(){
+
+    win.focus();
+    win.print();
+
+},300);
+
+setTimeout(function(){
+
+    win.close();
+
+},2000);
+
+}
+async function paySelectedItems(){
+
+    if(currentOrder==null){
+        return;
+    }
+
+    printBill(currentOrder.orderNo);
+
+}
+let paymentTotal = 0;
+function openPaymentWindow(total, callback){
+
+    document.getElementById("paymentModal").style.display = "block";
+
+    document.getElementById("payAmountDue").innerHTML = "KSh " + total;
+
+    document.getElementById("cashReceived").value = "";
+    document.getElementById("cashChange").innerHTML = "";
+    document.getElementById("cashOwed").innerHTML = "";
+    document.getElementById("mpesaCode").value = "";
+    document.getElementById("cardReference").value = "";
+
+    let payMethod = document.getElementById("payMethod");
+
+    function updatePaymentView(){
+
+        document.getElementById("cashSection").style.display =
+        payMethod.value === "Cash" ? "block" : "none";
+
+        document.getElementById("mpesaSection").style.display =
+        payMethod.value === "M-Pesa" ? "block" : "none";
+
+        document.getElementById("cardSection").style.display =
+        payMethod.value === "Card" ? "block" : "none";
+    }
+
+    updatePaymentView();
+
+    payMethod.onchange = updatePaymentView;
+
+    document.getElementById("cashReceived").oninput = function(){
+
+        let paid = Number(this.value) || 0;
+
+        let balance = paid - total;
+
+        if(balance >= 0){
+
+            document.getElementById("cashChange").innerHTML =
+            "Change: KSh " + balance;
+
+            document.getElementById("cashOwed").innerHTML = "";
+
+        }else{
+
+            document.getElementById("cashChange").innerHTML = "";
+
+            document.getElementById("cashOwed").innerHTML =
+            "Still Owed: KSh " + Math.abs(balance);
+
+        }
+    };
+
+    document.getElementById("confirmPaymentBtn").onclick = function(){
+
+        callback({
+
+            paymentMethod: payMethod.value,
+
+            amountPaid: Number(document.getElementById("cashReceived").value) || 0,
+
+            mpesaCode: document.getElementById("mpesaCode").value.trim(),
+
+            cardReference: document.getElementById("cardReference").value.trim()
+
+        });
+
+        document.getElementById("paymentModal").style.display = "none";
+
+    };
+
+}
+function closePaymentWindow(){
+
+    document.getElementById("paymentModal").style.display = "none";
+
+}
+function openPayment(){
+
+    paymentTotal = 0;
+
+    document.querySelectorAll(".payItem:checked").forEach(function(box){
+
+        let item = currentOrder.items[Number(box.value)];
+
+        paymentTotal += item.price * (item.qty || 1);
+
+    });
+
+    if(paymentTotal<=0){
+        alert("Please select at least one meal.");
+        return;
+    }
+
+    document.getElementById("payAmount").innerHTML =
+    "KSh " + paymentTotal;
+
+    document.getElementById("amountReceived").value =
+    paymentTotal;
+
+    document.getElementById("balanceText").innerHTML =
+    "Change : KSh 0";
+
+    document.getElementById("mpesaCode").value="";
+    document.getElementById("cardReference").value="";
+
+    changePaymentMethod();
+
+    document.getElementById("paymentModal").style.display="block";
+}
+
+function closePayment(){
+
+    document.getElementById("paymentModal").style.display="none";
+
+}
+
+function changePaymentMethod(){
+
+    let method =
+    document.querySelector("input[name='payMethod']:checked").value;
+
+    document.getElementById("mpesaArea").style.display =
+    method=="M-Pesa" ? "block" : "none";
+
+    document.getElementById("cardArea").style.display =
+    method=="Card" ? "block" : "none";
+
+    calculateBalance();
+
+}
+
+function calculateBalance(){
+
+    let received =
+    Number(document.getElementById("amountReceived").value);
+
+    if(isNaN(received)){
+        received=0;
+    }
+
+    let diff = received-paymentTotal;
+
+    if(diff>=0){
+
+        document.getElementById("balanceText").innerHTML =
+        "Change : KSh "+diff;
+
+        document.getElementById("balanceText").style.color =
+        "#2e7d32";
+
+    }else{
+
+        document.getElementById("balanceText").innerHTML =
+        "Still Owed : KSh "+Math.abs(diff);
+
+        document.getElementById("balanceText").style.color =
+        "red";
+
+    }
+
+}
+window.showPage = showPage;
+window.logout = logout;
+window.newOrder = newOrder;
+window.saveOrder = saveOrder;
+window.addMeal = addMeal;
+window.quickAdd = quickAdd;
+window.removeMeal = removeMeal;
+window.printCurrentBill = printCurrentBill;
+window.completeOrder = completeOrder;
+window.paySelectedItems = paySelectedItems;
+window.toggleMeal = toggleMeal;
+window.updateSelectedTotal = updateSelectedTotal;
+window.newCounterSale = newCounterSale;
+window.addInventoryItem = addInventoryItem;
+window.addStock = addStock;
+window.stockOut = stockOut;
+window.editInventoryItem = editInventoryItem;
+window.deleteInventoryItem = deleteInventoryItem;
+window.deleteItem = deleteItem;
+window.issueStock = issueStock;
+window.sellCounterItem = sellCounterItem;
+window.drawCounter = drawCounter;
+window.addMenuItem = addMenuItem;
+window.drawMenu = drawMenu;
+window.searchOrders = searchOrders;
+window.editMenuItem = editMenuItem;
+window.deleteMenuItem = deleteMenuItem;
+window.searchInventory = searchInventory;
+
+window.checkoutCounter = checkoutCounter;
+window.addExpense = addExpense;
+async function drawCounter(){
+
+    let buttons = "";
+
+    inventory.forEach(function(item){
+
+        let category = (item.category || "").toLowerCase();
+
+        if(category !== "drink") return;
+
+        buttons += `
+        <button onclick="sellCounterItem('${item.id}')">
+            🥤 ${item.name} ${item.size}<br>
+            Stock: ${item.qty} ${item.unit}
+        </button>
+        `;
+
+    });
+
+    document.getElementById("counterButtons").innerHTML =
+        buttons || "No drinks available.";
+
+    let sales = "";
+
+    if(counterSales.length===0){
+
+        sales = "No counter sales.";
+
+    }else{
+
+        counterSales.forEach(function(s){
+
+            let itemNames = "";
+
+            if(s.items){
+
+                s.items.forEach(function(i){
+
+                    itemNames +=
+                        i.name +
+                        " x" +
+                        i.qty +
+                        "<br>";
+
+                });
+
+            }
+
+            sales += `
+            <div class="section">
+
+                ${itemNames}
+
+                <b>Total: KSh ${s.total}</b>
+
+            </div>
+            `;
+
+        });
+
+    }
+
+    document.getElementById("counterList").innerHTML = sales;
+
+}
+
+    onSnapshot(collection(db,"orders"), async ()=>{
+
+    await drawOrders();
+
+    const snapshot = await getDocs(collection(db,"orders"));
+
+    let orderCount = 0;
+    let sales = 0;
+    let today = new Date().toDateString();
+
+    snapshot.forEach((docSnap)=>{
+
+        const order = docSnap.data();
+
+        if(order.createdAt &&
+           new Date(order.createdAt).toDateString()===today){
+
+            orderCount++;
+
+        }
+
+// Sales are now calculated from the payments collection.
+// Do not calculate them from orders.
+
+    });
+
+    document.getElementById("ordersToday").innerHTML = orderCount;
+    let counterTotal = 0;
+
+counterSales.forEach((sale)=>{
+
+    counterTotal += Number(sale.total || 0);
+
+});
+
+let paymentTotal = 0;
+
+payments.forEach(function(payment){
+
+    paymentTotal += Number(payment.totalPaid || 0);
+
+});
+
+let totalSales = paymentTotal + counterTotal;
+
+document.getElementById("todaySales").innerHTML = "KSh " + totalSales;
+
+document.getElementById("dailySales").innerHTML = "KSh " + totalSales;
+    updateReports();
+
+});
+
+onSnapshot(collection(db,"inventory"), ()=>{
+
+    drawInventory();
+
+});
+
+onSnapshot(collection(db,"menu"), ()=>{
+
+    drawMenu();
+
+});
+
+onSnapshot(collection(db,"counterSales"), async ()=>{
+
+    const snapshot = await getDocs(collection(db,"counterSales"));
+
+    counterSales = [];
+
+    snapshot.forEach((docSnap)=>{
+
+        counterSales.push(docSnap.data());
+
+    });
+
+    document.getElementById("counterSales").innerHTML =
+        counterSales.length;
+
+    drawCounter();
+
+    updateReports();
+
+});
+
+onSnapshot(collection(db,"issuedStock"), async ()=>{
+
+    const snapshot = await getDocs(collection(db,"issuedStock"));
+
+    issuedStock = [];
+
+let html = "";
+let totalIssuedToday = 0;
+let today = new Date().toDateString();
+
+    snapshot.forEach((docSnap)=>{
+
+        const item = docSnap.data();
+
+        issuedStock.push(item);
+if(item.date){
+
+    let itemDate = new Date(item.date).toDateString();
+
+    if(itemDate === today){
+
+        totalIssuedToday += Number(item.qty);
+
+    }
+
+}
+        html += `
+<tr>
+<td>${item.date}</td>
+<td>${item.item}</td>
+<td>${item.qty}</td>
+<td>${item.destination}</td>
+<td>${item.purpose || ""}</td>
+</tr>
+`;
+
+    });
+
+    if(html===""){
+
+        html = `
+        <tr>
+            <td colspan="3">No issued stock</td>
+        </tr>
+        `;
+
+    }
+
+    document.getElementById("issueTable").innerHTML = html;
+document.getElementById("issueSummary").innerHTML =
+"Total Issued Today: " + totalIssuedToday;
+});
+onSnapshot(collection(db,"expenses"), async ()=>{
+
+    const snapshot = await getDocs(collection(db,"expenses"));
+
+    expenses = [];
+
+    let html = "";
+
+    let total = 0;
+
+    snapshot.forEach((docSnap)=>{
+
+        let expense = {
+            id: docSnap.id,
+            ...docSnap.data()
+        };
+
+        expenses.push(expense);
+
+        total += Number(expense.amount);
+
+        html += `
+<tr>
+<td>${expense.date}</td>
+<td>${expense.name}</td>
+<td>KSh ${expense.amount}</td>
+<td>
+<button
+onclick="deleteExpense('${expense.id}')"
+style="width:auto;padding:6px 10px;background:red;">
+🗑 Delete
+</button>
+</td>
+</tr>
+`;
+
+    });
+
+    if(html===""){
+
+        html=`
+<tr>
+<td colspan="4">
+No expenses recorded.
+</td>
+</tr>
+`;
+
+    }
+
+    document.getElementById("expenseTable").innerHTML = html;
+
+    document.getElementById("expenseSummary").innerHTML =
+    "Total Expenses Today: KSh " + total;
+updateReports();
+});
+function updateReports(){
+
+let restaurantSales = 0;
+let counterTotal = 0;
+let expenseTotal = 0;
+let orderCount = 0;
+let cashSales = 0;
+
+let mpesaSales = 0;
+
+let cardSales = 0;
+let today = new Date().toDateString();
+
+payments.forEach(payment=>{
+
+    if(!payment.createdAt){
+        return;
+    }
+
+    let paymentDate = payment.createdAt.toDate().toDateString();
+
+    if(paymentDate !== today){
+        return;
+    }
+
+    restaurantSales += Number(payment.totalPaid || 0);
+if(payment.paymentMethod === "Cash"){
+
+    cashSales += Number(payment.totalPaid || 0);
+
+}else if(payment.paymentMethod === "M-Pesa"){
+
+    mpesaSales += Number(payment.totalPaid || 0);
+
+}else if(payment.paymentMethod === "Card"){
+
+    cardSales += Number(payment.totalPaid || 0);
+
+}
+    orderCount++;
+
+});
+
+counterSales.forEach(sale=>{
+
+    if(!sale.createdAt){
+        return;
+    }
+
+    let saleDate = sale.createdAt.toDate().toDateString();
+
+    if(saleDate !== today){
+        return;
+    }
+
+    counterTotal += Number(sale.total || 0);
+
+    if(sale.paymentMethod === "Cash"){
+
+        cashSales += Number(sale.total || 0);
+
+    }else if(sale.paymentMethod === "M-Pesa"){
+
+        mpesaSales += Number(sale.total || 0);
+
+    }else if(sale.paymentMethod === "Card"){
+
+        cardSales += Number(sale.total || 0);
+
+    }
+
+});
+
+expenses.forEach(exp=>{
+
+    if(!exp.date){
+        return;
+    }
+
+    let expenseDate = new Date(exp.date).toDateString();
+
+    if(expenseDate !== today){
+        return;
+    }
+
+    expenseTotal += Number(exp.amount || 0);
+
+});
+
+let totalSales = restaurantSales + counterTotal;
+
+let netCash = totalSales - expenseTotal;
+
+document.getElementById("restaurantSales").innerHTML =
+"KSh " + restaurantSales;
+
+document.getElementById("reportCounterSales").innerHTML =
+"KSh " + counterTotal;
+document.getElementById("cashSales").innerHTML =
+"KSh " + cashSales;
+
+document.getElementById("mpesaSales").innerHTML =
+"KSh " + mpesaSales;
+
+document.getElementById("cardSales").innerHTML =
+"KSh " + cardSales;
+document.getElementById("dailySales").innerHTML =
+"KSh " + totalSales;
+
+document.getElementById("reportExpenses").innerHTML =
+"KSh " + expenseTotal;
+
+document.getElementById("netCash").innerHTML =
+"KSh " + netCash;
+
+document.getElementById("ordersToday").innerHTML =
+orderCount;
+
+}
+async function addMenuItem(){
+
+    let name = prompt("Menu Item Name");
+
+    if(!name) return;
+
+    let category = prompt(
+        "Category\n\nBreakfast\nMain Meal\nSnack\nDrink",
+        "Main Meal"
+    );
+
+    if(!category) return;
+
+    let price = Number(prompt("Selling Price"));
+
+    if(isNaN(price) || price<=0) return;
+
+    await addDoc(collection(db,"menu"),{
+
+        name,
+        category,
+        price
+
+    });
+
+    drawMenu();
+
+}
+
+function searchOrders(){
+
+    let keyword =
+    document.getElementById("searchOrder")
+    .value.toLowerCase();
+
+    let cards =
+    document.querySelectorAll("#ordersList .section");
+
+    cards.forEach(function(card){
+
+        if(card.innerText.toLowerCase().includes(keyword)){
+
+            card.style.display = "block";
+
+        }else{
+
+            card.style.display = "none";
+
+        }
+
+    });
+
+}
+onSnapshot(collection(db,"payments"), async ()=>{
+
+    const snapshot = await getDocs(collection(db,"payments"));
+
+    payments = [];
+
+    snapshot.forEach((docSnap)=>{
+
+        payments.push(docSnap.data());
+
+    });
+
+    updateReports();
+
+});
+function searchInventory(){
+
+    let keyword = document
+    .getElementById("searchInventory")
+    .value
+    .toLowerCase();
+
+    let rows = document.querySelectorAll("#inventoryTable tr");
+
+    rows.forEach(function(row){
+
+        if(row.innerText.toLowerCase().includes(keyword)){
+
+            row.style.display = "";
+
+        }else{
+
+            row.style.display = "none";
+
+        }
+
+    });
+
+}
+async function drawMenu(){
+
+    const snapshot =
+    await getDocs(collection(db,"menu"));
+
+    menuItems = [];
+
+let breakfast = "";
+let mainMeal = "";
+let snack = "";
+let drink = "";
+    let table = "";
+
+    const docs = snapshot.docs.reverse();
+
+docs.forEach((docSnap)=>{
+
+        const item = {
+
+            id: docSnap.id,
+            ...docSnap.data()
+
+        };
+
+        menuItems.push(item);
+
+        let btn = `
+<button onclick="quickAdd('${item.name}',${item.price})">
+    🍽 ${item.name}<br>
+    KSh ${item.price}
+</button>
+`;
+
+let category = (item.category || "").toLowerCase();
+
+if(category == "breakfast"){
+
+    breakfast += btn;
+
+}else if(category == "main meal"){
+
+    mainMeal += btn;
+
+}else if(category == "snack"){
+
+    snack += btn;
+
+}else if(category == "drink"){
+
+    drink += btn;
+
+}else{
+
+    mainMeal += btn;
+
+}
+
+        table += `
+<tr>
+    <td>${item.name}</td>
+    <td>${item.category}</td>
+    <td>KSh ${item.price}</td>
+    <td>
+        <button onclick="editMenuItem('${item.id}')" style="width:auto;padding:6px 10px;margin:2px;">
+            ✏ Edit
+        </button>
+
+        <button onclick="deleteMenuItem('${item.id}')" style="width:auto;padding:6px 10px;margin:2px;background:red;">
+            🗑 Delete
+        </button>
+    </td>
+</tr>
+`;
+
+    });
+
+    document.getElementById("mealButtons").innerHTML = `
+
+<h3>🍳 Breakfast</h3>
+${breakfast || "No breakfast items."}
+
+<h3 style="margin-top:20px;">🍛 Main Meals</h3>
+${mainMeal || "No main meals."}
+
+<h3 style="margin-top:20px;">🥤 Drinks</h3>
+${drink || "No drinks."}
+
+<h3 style="margin-top:20px;">🍟 Snacks</h3>
+${snack || "No snacks."}
+
+`;
+
+    document.getElementById("menuTable").innerHTML =
+        table || `
+        <tr>
+            <td colspan="3">No menu items.</td>
+        </tr>
+        `;
+
+}
+async function editMenuItem(id){
+
+let item = menuItems.find(function(m){
+    return m.id === id;
+});
+
+if(!item){
+    alert("Menu item not found.");
+    return;
+}
+
+let name = prompt("Menu Item Name", item.name);
+if(!name) return;
+
+let category = prompt(
+"Category",
+item.category
+);
+if(!category) return;
+
+let price = Number(prompt(
+"Selling Price",
+item.price
+));
+
+if(isNaN(price) || price <= 0){
+    return;
+}
+
+await updateDoc(
+    doc(db,"menu",id),
+    {
+        name:name,
+        category:category,
+        price:price
+    }
+);
+
+alert("Menu updated successfully.");
+
+}
+async function deleteMenuItem(id){
+
+let item = menuItems.find(function(m){
+    return m.id === id;
+});
+
+if(!item){
+    alert("Menu item not found.");
+    return;
+}
+
+let ok = confirm(
+"Delete " + item.name + " ?"
+);
+
+if(!ok){
+    return;
+}
+
+await deleteDoc(
+    doc(db,"menu",id)
+);
+
+alert("Menu item deleted successfully.");
+
+}
+
+</script>
+
+</body>
+</html>
