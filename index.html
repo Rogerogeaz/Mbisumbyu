@@ -263,8 +263,6 @@ POS & Inventory System
 
 <option value="admin">👑 Admin</option>
 
-<option value="cashier">💰 Cashier</option>
-
 </select>
 
 <input
@@ -303,10 +301,10 @@ Mbisu Hotel
 
 </div>
 
-<div class="role" id="currentRole">
-
-Admin
-
+<div class="role">
+<span id="currentRole">Admin</span>
+ -
+<span id="currentUser">Admin</span>
 </div>
 
 </div>
@@ -821,17 +819,94 @@ Manage Products
 
 </button>
 
-<button>
+<button onclick="showPage('users')">
 
 Manage Users
 
 </button>
 
-<button>
+<button onclick="showPage('receiptSettings')">
 
 Receipt Settings
 
 </button>
+
+</div>
+
+</div>
+<!-- RECEIPT SETTINGS PAGE -->
+
+<div id="receiptSettings" class="page">
+
+<div class="section">
+
+<h3>🧾 Receipt Settings</h3>
+
+<label>Hotel Name</label>
+<input id="receiptHotelName">
+
+<label>Address</label>
+<input id="receiptAddress">
+
+<label>Phone</label>
+<input id="receiptPhone">
+
+<label>Thank You Message</label>
+<input id="receiptThanks">
+
+<label>Receipt Footer</label>
+<input id="receiptFooter">
+
+<button onclick="saveReceiptSettings()">
+
+💾 Save Receipt Settings
+
+</button>
+
+</div>
+
+</div>
+<!-- USERS PAGE -->
+
+<div id="users" class="page">
+
+<div class="section">
+
+<h3>👥 Users</h3>
+
+<button onclick="addUser()">
+
+➕ Add User
+
+</button>
+
+<table>
+
+<tr>
+
+<th>Name</th>
+
+<th>Role</th>
+
+<th>Actions</th>
+
+</tr>
+
+<tbody id="usersTable">
+
+<tr>
+
+<td colspan="3">
+
+No users.
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
 
 </div>
 
@@ -947,9 +1022,38 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+async function loadLoginUsers(){
 
+    const select = document.getElementById("username");
+
+    select.innerHTML = `
+    <option value="">Select User</option>
+`;
+
+    const snapshot = await getDocs(collection(db,"users"));
+
+    snapshot.forEach((docSnap)=>{
+
+        const user = docSnap.data();
+
+let option = document.createElement("option");
+
+option.value = user.name;
+
+if(user.role === "Admin"){
+    option.textContent = "👑 " + user.name;
+}else{
+    option.textContent = "💰 " + user.name;
+}
+
+select.appendChild(option);
+
+    });
+
+}
+loadLoginUsers();
+let currentUser="";
 let currentRole="";
-
 document.getElementById("today").innerHTML=
 new Date().toDateString();
 
@@ -959,39 +1063,60 @@ let user=document.getElementById("username").value.trim();
 
 let pass=document.getElementById("password").value.trim();
 
-if(user==="admin" && pass==="1234"){
+{
+
+const userSnapshot = await getDocs(collection(db,"users"));
+
+let loggedIn = false;
+
+userSnapshot.forEach(function(docSnap){
+
+    let account = docSnap.data();
+
+    if(
+        account.name.toLowerCase() === user.toLowerCase() &&
+        account.pin === pass
+    ){
+
+        loggedIn = true;
+
+currentUser = account.name;
+currentRole = account.role;
 
 document.getElementById("loginPage").style.display="none";
-document.getElementById("mainApp").style.display="block";
-document.getElementById("nav").style.display="flex";
-document.getElementById("dashboard").style.display="block";
-document.getElementById("currentRole").innerHTML="Admin";
-await drawOrders();
+        document.getElementById("mainApp").style.display="block";
+        document.getElementById("nav").style.display="flex";
+        document.getElementById("dashboard").style.display="block";
+
+        document.getElementById("currentRole").innerHTML = account.role;
+
+        if(account.role === "Cashier"){
+
+            document.getElementById("inventoryBtn").style.display="none";
+            document.getElementById("issueBtn").style.display="none";
+            document.getElementById("reportsBtn").style.display="none";
+            document.getElementById("adminBtn").style.display="none";
+
+        }
+
+    }
+
+});
+
+if(loggedIn){
+
+    await drawOrders();
 await drawInventory();
 await drawMenu();
 await drawCounter();
-}
+await loadReceiptSettings();
+    await drawUsers();
 
-else if(user==="cashier" && pass==="1234"){
+}else{
 
-document.getElementById("loginPage").style.display="none";
-document.getElementById("mainApp").style.display="block";
-document.getElementById("nav").style.display="flex";
-document.getElementById("dashboard").style.display="block";
-document.getElementById("currentRole").innerHTML="Cashier";
-await drawOrders();
-await drawInventory();
-await drawMenu();
-await drawCounter();
-document.getElementById("inventoryBtn").style.display="none";
-document.getElementById("reportsBtn").style.display="none";
-document.getElementById("adminBtn").style.display="none";
+    alert("Wrong username or password");
 
 }
-
-else{
-
-alert("Wrong username or password");
 
 }
 
@@ -1042,7 +1167,8 @@ let menuItems = [];
 let expenses = [];
 
 let payments = [];
-
+let receiptSettings = {};
+let users = [];
 function newOrder(){
 
 let html=`
@@ -1515,8 +1641,7 @@ let now = new Date();
 
 let receiptNo = "RCP"+Date.now();
 
-let cashier =
-document.getElementById("currentRole").innerHTML;
+let cashier = currentUser;
 return openPaymentWindow(paidTotal, async function(payment){
 
 let paymentMethod = payment.paymentMethod;
@@ -1965,7 +2090,7 @@ drawCounter();
 }
 
 async function addStock(){
-
+if(!adminOnly()) return;
 if(inventory.length==0){
 alert("No inventory items.");
 return;
@@ -2036,7 +2161,7 @@ alert("Order completed successfully.");
 
 }
 async function addInventoryItem(){
-
+if(!adminOnly()) return;
 let name = prompt("Item Name");
 if(!name) return;
 
@@ -2078,7 +2203,7 @@ drawCounter();
 }
 
 async function stockOut(){
-
+if(!adminOnly()) return;
 if(inventory.length==0){
 alert("No inventory items.");
 return;
@@ -2168,7 +2293,7 @@ alert("Item deleted successfully.");
 
 }
 async function editInventoryItem(id){
-
+if(!adminOnly()) return;
 let item = inventory.find(function(i){
     return i.id === id;
 });
@@ -2214,7 +2339,7 @@ alert("Inventory updated successfully.");
 
 }
 async function deleteInventoryItem(id){
-
+if(!adminOnly()) return;
 let item = inventory.find(function(i){
     return i.id === id;
 });
@@ -2816,6 +2941,19 @@ function calculateBalance(){
     }
 
 }
+function adminOnly(){
+
+    if(document.getElementById("currentRole").innerHTML.trim() !== "Admin"){
+
+        alert("Only an Administrator can perform this action.");
+
+        return false;
+
+    }
+
+    return true;
+
+}
 window.showPage = showPage;
 window.logout = logout;
 window.newOrder = newOrder;
@@ -2847,6 +2985,7 @@ window.searchInventory = searchInventory;
 
 window.checkoutCounter = checkoutCounter;
 window.addExpense = addExpense;
+window.addUser = addUser;
 async function drawCounter(){
 
     let buttons = "";
@@ -2877,35 +3016,39 @@ async function drawCounter(){
 
     }else{
 
-        counterSales.forEach(function(s){
+        let today = new Date().toDateString();
 
-            let itemNames = "";
+counterSales.forEach(function(s){
 
-            if(s.items){
+    if(!s.createdAt) return;
 
-                s.items.forEach(function(i){
+    let saleDate = s.createdAt.toDate().toDateString();
 
-                    itemNames +=
-                        i.name +
-                        " x" +
-                        i.qty +
-                        "<br>";
+    if(saleDate !== today) return;
 
-                });
+    let itemNames = "";
 
-            }
+    if(s.items){
 
-            sales += `
-            <div class="section">
+        s.items.forEach(function(i){
 
-                ${itemNames}
-
-                <b>Total: KSh ${s.total}</b>
-
-            </div>
-            `;
+            itemNames +=
+                i.name +
+                " x" +
+                i.qty +
+                "<br>";
 
         });
+
+    }
+
+    sales += `
+    <div class="section">
+        ${itemNames}
+        <b>Total: KSh ${s.total}</b>
+    </div>
+    `;
+});
 
     }
 
@@ -3226,7 +3369,7 @@ orderCount;
 
 }
 async function addMenuItem(){
-
+if(!adminOnly()) return;
     let name = prompt("Menu Item Name");
 
     if(!name) return;
@@ -3291,6 +3434,13 @@ onSnapshot(collection(db,"payments"), async ()=>{
     });
 
     updateReports();
+
+});
+onSnapshot(collection(db,"users"), async ()=>{
+
+    await drawUsers();
+
+    await loadLoginUsers();
 
 });
 function searchInventory(){
@@ -3418,7 +3568,7 @@ ${snack || "No snacks."}
 
 }
 async function editMenuItem(id){
-
+if(!adminOnly()) return;
 let item = menuItems.find(function(m){
     return m.id === id;
 });
@@ -3459,7 +3609,7 @@ alert("Menu updated successfully.");
 
 }
 async function deleteMenuItem(id){
-
+if(!adminOnly()) return;
 let item = menuItems.find(function(m){
     return m.id === id;
 });
@@ -3484,7 +3634,144 @@ await deleteDoc(
 alert("Menu item deleted successfully.");
 
 }
+async function addUser(){
 
+    let name = prompt("User Name");
+
+    if(!name) return;
+
+    let role = prompt(
+        "Role\n\nAdmin\nCashier",
+        "Cashier"
+    );
+
+    if(!role) return;
+
+    let pin = prompt("PIN");
+
+    if(!pin) return;
+
+    await setDoc(
+        doc(db,"users",name.toLowerCase()),
+        {
+            name:name,
+            role:role,
+            pin:pin
+        }
+    );
+
+    alert("User added successfully.");
+await drawUsers();
+}
+async function drawUsers(){
+
+    const snapshot = await getDocs(collection(db,"users"));
+
+    users = [];
+
+    let html = "";
+
+    snapshot.forEach((docSnap)=>{
+
+        let user = {
+            id: docSnap.id,
+            ...docSnap.data()
+        };
+
+        users.push(user);
+
+        html += `
+<tr>
+<td>${user.name}</td>
+<td>${user.role}</td>
+<td>
+<button
+onclick="deleteUser('${user.id}')"
+style="width:auto;padding:6px 10px;background:red;">
+🗑 Delete
+</button>
+</td>
+</tr>
+`;
+
+    });
+
+    if(html===""){
+
+        html = `
+<tr>
+<td colspan="3">
+No users.
+</td>
+</tr>
+`;
+
+    }
+
+    document.getElementById("usersTable").innerHTML = html;
+
+}
+async function loadReceiptSettings(){
+
+    const snapshot = await getDocs(collection(db,"settings"));
+
+    snapshot.forEach(function(docSnap){
+
+        if(docSnap.id==="receipt"){
+
+            receiptSettings = docSnap.data();
+
+        }
+
+    });
+
+    document.getElementById("receiptHotelName").value =
+        receiptSettings.hotelName || "MBISU HOTEL";
+
+    document.getElementById("receiptAddress").value =
+        receiptSettings.address || "";
+
+    document.getElementById("receiptPhone").value =
+        receiptSettings.phone || "";
+
+    document.getElementById("receiptThanks").value =
+        receiptSettings.thanks || "Karibu Tena 😊";
+
+    document.getElementById("receiptFooter").value =
+        receiptSettings.footer || "Powered by Mbisu Hotel POS";
+
+}
+
+async function saveReceiptSettings(){
+
+    await setDoc(
+        doc(db,"settings","receipt"),
+        {
+
+            hotelName:
+            document.getElementById("receiptHotelName").value,
+
+            address:
+            document.getElementById("receiptAddress").value,
+
+            phone:
+            document.getElementById("receiptPhone").value,
+
+            thanks:
+            document.getElementById("receiptThanks").value,
+
+            footer:
+            document.getElementById("receiptFooter").value
+
+        }
+    );
+
+    alert("Receipt settings saved.");
+
+    await loadReceiptSettings();
+
+}
+window.saveReceiptSettings = saveReceiptSettings;
 </script>
 
 </body>
